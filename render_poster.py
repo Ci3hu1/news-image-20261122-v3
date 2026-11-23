@@ -55,7 +55,7 @@ import sys
 sys.path.insert(0, os.path.expanduser(
     "~/workspace/custom-skills/editorial-illustration"))
 
-from PIL import Image, ImageDraw  # noqa: E402
+from PIL import Image, ImageDraw, ImageFilter  # noqa: E402
 
 from lib import dataviz, figures, landmarks, palette, scenes, worldmap  # noqa: E402
 from lib.palette import (  # noqa: E402
@@ -614,6 +614,11 @@ def build():
            font=fnt("sans", 10), fill=MUTED)
 
     img = img.resize((W, H), Image.LANCZOS)
+    # Sharpen after downscale: the judge views the entry at ~300px, and
+    # a moderate unsharp mask keeps the masthead and big headlines crisp
+    # at that size (Joni, 23 Nov 2026: "Knp di 300px gambarnya buram").
+    img = img.filter(ImageFilter.UnsharpMask(radius=2, percent=120,
+                                             threshold=2))
     img.save(OUT, optimize=True)
     data = open(OUT, "rb").read()
     print("wrote %s  %d bytes  sha256 %s"
